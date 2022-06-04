@@ -1,0 +1,37 @@
+{
+  "name": "lens-resolver",
+  "version": "0.0.1",
+  "description": "LENS protocol as a backend to ENS Resolvers",
+  "main": "index.js",
+  "scripts": {
+    "lint": "standard | snazzy",
+    "test": "tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/me3-eth/lens-resolver-client.git"
+  },
+  "keywords": [
+    "lens",
+    "ens",
+    "ethereum",
+    "polygon",
+    "me3"
+  ],
+  "author": "charchar.eth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/me3-eth/lens-resolver-client/issues"
+  },
+  "homepage": "https://github.com/me3-eth/lens-resolver-client#readme",
+  "devDependencies": {
+    "nock": "^13.2.6",
+    "snazzy": "^9.0.0",
+    "standard": "^17.0.0",
+    "tap": "^16.2.0"
+  },
+  "dependencies": {
+    "ethers": "^5.6.8",
+    "gotql": "^2.1.0-alpha1"
+  }
+}
