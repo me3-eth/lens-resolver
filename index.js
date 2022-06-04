@@ -26,7 +26,7 @@ async function textResolver (node, key) {
 
   const { attributes } = await getProfile(ownerAddress) || { attributes: [] }
   const { value } = attributes.find(a => a.key === key) || {}
-  
+
   return value
 }
 
@@ -59,4 +59,3 @@ async function getProfile (ownerAddress) {
 
   return data.profiles.items[0]
 }
-

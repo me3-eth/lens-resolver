@@ -15,14 +15,14 @@ test('should return twitter value from lens', async (t) => {
     .reply(200, {
       jsonrpc: '2.0',
       id: 42,
-      result: "0x000000000000000000000000f638bf55b9b7b30a7f3286245e13f6198fcc9879"
+      result: '0x000000000000000000000000f638bf55b9b7b30a7f3286245e13f6198fcc9879'
     })
 
   const lens = nock('https://api.lens.dev:443')
     .post('/', {
-      query: 'query { profiles(request: { ownedBy: [\"0xF638Bf55B9B7B30A7f3286245E13f6198FCc9879\"] }) { items { attributes { key value } } } }',
-      'operationName': null,
-      'variables': null
+      query: 'query { profiles(request: { ownedBy: ["0xF638Bf55B9B7B30A7f3286245E13f6198FCc9879"] }) { items { attributes { key value } } } }',
+      operationName: null,
+      variables: null
     })
     .reply(200, {
       data: {
@@ -57,14 +57,14 @@ test('should return nothing for non-existant key', async (t) => {
     .reply(200, {
       jsonrpc: '2.0',
       id: 42,
-      result: "0x000000000000000000000000f638bf55b9b7b30a7f3286245e13f6198fcc9879"
+      result: '0x000000000000000000000000f638bf55b9b7b30a7f3286245e13f6198fcc9879'
     })
 
   const lens = nock('https://api.lens.dev:443')
     .post('/', {
-      query: 'query { profiles(request: { ownedBy: [\"0xF638Bf55B9B7B30A7f3286245E13f6198FCc9879\"] }) { items { attributes { key value } } } }',
-      'operationName': null,
-      'variables': null
+      query: 'query { profiles(request: { ownedBy: ["0xF638Bf55B9B7B30A7f3286245E13f6198FCc9879"] }) { items { attributes { key value } } } }',
+      operationName: null,
+      variables: null
     })
     .reply(200, {
       data: {
