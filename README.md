@@ -14,7 +14,11 @@ npm i @me3/lens-resolver
 
 ```js
 const { utils } = require('ethers')
-const resovle = require('@me3/lens-resolver)
+const resovle = require('@me3/lens-resolver)({
+  network: 'mainnet',
+  lensUrl: 'https://api.lens.dev/',
+  rpcUrl: 'your.fav.rpc'
+})
 
 const node = utils.namehash('charchar.eth')
 const key = 'twitter'
