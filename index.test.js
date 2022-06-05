@@ -4,13 +4,44 @@ const { test } = require('tap')
 const nock = require('nock')
 const { utils } = require('ethers')
 
-const resolve = require('.')
+const resolve = require('.')({
+  rpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/alchemy_api_key'
+})
+
+// sets chain id on provider
+/*
+nock('https://eth-mainnet.alchemyapi.io')
+  .persist()
+  .post('/v2/alchemy_api_key', {
+    "method":"eth_chainId",
+    "params":[],
+    "id":42,
+    "jsonrpc":"2.0"
+  })
+  .reply(200, {
+    "jsonrpc":"2.0",
+    "result":"0x1",
+    "id":42
+  })
+  */
 
 test('should return twitter value from lens', async (t) => {
   const node = utils.namehash('charchar.eth')
   const key = 'twitter'
 
-  const blockchain = nock('https://eth-mainnet.alchemyapi.io:443', { encodedQueryParams: true })
+  // An incrementing ID is used to track request/response
+  const blockchain = nock('https://eth-mainnet.alchemyapi.io')
+    .post('/v2/alchemy_api_key', {
+      "method":"eth_chainId",
+      "params":[],
+      "id":42,
+      "jsonrpc":"2.0"
+    })
+    .reply(200, {
+      "jsonrpc":"2.0",
+      "result":"0x1",
+      "id":42
+    })
     .post('/v2/alchemy_api_key')
     .reply(200, {
       jsonrpc: '2.0',
@@ -41,7 +72,9 @@ test('should return twitter value from lens', async (t) => {
       }
     })
 
+  nock.recorder.rec()
   const result = await resolve('text(bytes32,string)', node, key)
+  nock.restore()
 
   t.equal(result, '0xcharchar')
   t.ok(blockchain.isDone())
@@ -52,7 +85,18 @@ test('should return nothing for non-existant key', async (t) => {
   const node = utils.namehash('charchar.eth')
   const key = 'github'
 
-  const blockchain = nock('https://eth-mainnet.alchemyapi.io:443', { encodedQueryParams: true })
+  const blockchain = nock('https://eth-mainnet.alchemyapi.io')
+    .post('/v2/alchemy_api_key', {
+      "method":"eth_chainId",
+      "params":[],
+      "id":42,
+      "jsonrpc":"2.0"
+    })
+    .reply(200, {
+      "jsonrpc":"2.0",
+      "result":"0x1",
+      "id":42
+    })
     .post('/v2/alchemy_api_key')
     .reply(200, {
       jsonrpc: '2.0',
@@ -80,7 +124,9 @@ test('should return nothing for non-existant key', async (t) => {
       }
     })
 
+  nock.recorder.rec()
   const result = await resolve('text(bytes32,string)', node, key)
+  nock.restore()
 
   t.notOk(result)
   t.ok(blockchain.isDone())

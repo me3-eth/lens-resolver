@@ -3,59 +3,72 @@
 const ethers = require('ethers')
 const gotql = require('gotql')
 
-const LENS_HOST = 'https://api.lens.dev/'
+module.exports = create
+
 const registryAbi = ['function owner(bytes32) external view returns (address)']
-const RPC_API_KEY = 'alchemy_api_key'
 
-const provider = new ethers.providers.AlchemyProvider('homestead', RPC_API_KEY)
-const registryContract = new ethers.Contract('0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e', registryAbi, provider)
-
-module.exports = resolve
-
-async function resolve (fnInterface, ...args) {
-  return resolvers[fnInterface](...args)
+const defaults = {
+  network: 'mainnet',
+  lensUrl: 'https://api.lens.dev/',
+  registryAddr: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
 }
 
-const resolvers = {
-  'text(bytes32,string)': textResolver,
-  'contenthash(bytes32)': node => textResolver(node, 'contenthash')
-}
+function create (options = {}) {
+  const opts = { ...defaults, ...options }
+  if(!opts.rpcUrl) throw new Error('Missing JSON RPC URL: options.rpcUrl')
 
-async function textResolver (node, key) {
-  const ownerAddress = await registryContract.owner(node)
+  const network = ethers.providers.getNetwork(opts.network)
+  const provider = new ethers.providers.JsonRpcProvider(opts.rpcUrl, network)
+  const registryContract = new ethers.Contract(opts.registryAddr, registryAbi, provider)
 
-  const { attributes } = await getProfile(ownerAddress) || { attributes: [] }
-  const { value } = attributes.find(a => a.key === key) || {}
+  async function textResolver (node, key) {
+    console.log('starting text')
+    const ownerAddress = await registryContract.owner(node)
 
-  return value
-}
+    const attributes = await getAttributes(ownerAddress) || []
+    const { value } = attributes.find(a => a.key === key) || {}
 
-async function getProfile (ownerAddress) {
-  const query = {
-    operation: {
-      name: 'profiles',
-      args: {
-        request: {
-          ownedBy: [ownerAddress]
-        }
-      },
-      fields: [
-        {
-          items: {
-            fields: [
-              {
-                attributes: {
-                  fields: ['key', 'value']
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
+    return value
   }
 
-  const { data } = await gotql.query(LENS_HOST, query)
+  async function getAttributes (ownerAddress) {
+    const query = {
+      operation: {
+        name: 'profiles',
+        args: {
+          request: {
+            ownedBy: [ownerAddress]
+          }
+        },
+        fields: [
+          {
+            items: {
+              fields: [
+                {
+                  attributes: {
+                    fields: ['key', 'value']
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
 
-  return data.profiles.items[0]
+    const { data } = await gotql.query(opts.lensUrl, query)
+
+    return data.profiles.items[0].attributes
+  }
+
+  const resolvers = {
+    'text(bytes32,string)': textResolver,
+    'contenthash(bytes32)': node => textResolver(node, 'contenthash')
+  }
+
+  async function resolve (fnInterface, ...args) {
+    return resolvers[fnInterface](...args)
+  }
+
+  return resolve
 }
