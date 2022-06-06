@@ -2,6 +2,12 @@
 
 Map ENS PublicResolver functions to LENS profile attributes.
 
+This is intended to be used as part of a solution in linking CCIP/Durian/OffchainLookups from ENS resolvers to LENS protocol.
+
+![offchain-lookup-gateway](https://user-images.githubusercontent.com/87212793/172201119-18c6eb59-26e9-4564-85a9-be721ce942e7.png)
+
+This project fits into the Green Rectangle in the diagram ("Resolve ENS functions against a datasource"), the data source being LENS protocol.
+
 Note: does not follow [ENSIP-10](https://docs.ens.domains/ens-improvement-proposals/ensip-10-wildcard-resolution)
 
 ## Installation
@@ -28,8 +34,9 @@ const resovle = require('@me3/lens-resolver)({
 
 const node = utils.namehash('charchar.eth')
 const key = 'twitter'
+const ensResolverFunction = 'text(bytes32,string)'
 
-const value = await resolve('text(bytes32,string)', node, key)
+const value = await resolve(ensResolverFunction, node, key)
 
 console.log({ value })
 // returns 0xcharchar on mainnet
