@@ -22,10 +22,9 @@ function create (options = {}) {
   const registryContract = new ethers.Contract(opts.registryAddr, registryAbi, provider)
 
   async function textResolver (node, key) {
-    console.log('starting text')
     const ownerAddress = await registryContract.owner(node)
 
-    const attributes = await getAttributes(ownerAddress) || []
+    const attributes = await getAttributes(ownerAddress)
     const { value } = attributes.find(a => a.key === key) || {}
 
     return value
@@ -57,8 +56,9 @@ function create (options = {}) {
     }
 
     const { data } = await gotql.query(opts.lensUrl, query)
+    const { items } = data.profiles
 
-    return data.profiles.items[0].attributes
+    return items[0] && items[0].attributes || []
   }
 
   const resolvers = {

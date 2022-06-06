@@ -138,6 +138,35 @@ test('should get contenthash from attributes', async (t) => {
   t.ok(lens.isDone())
 })
 
+test('should throw error when missing RPC URL', async (t) => {
+  return t.throws(() => createLensResolver())
+})
+
+test('should return nothing when there are no attributes', async (t) => {
+  const resolve = createLensResolver({ rpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/alchemy_api_key' })
+  const node = utils.namehash('charchar.eth')
+
+  const blockchain = nock('https://eth-mainnet.alchemyapi.io')
+    .post('/v2/alchemy_api_key', isChainIdReq)
+    .reply(200, wrapJsonRpc({ result: '0x1' }))
+    .post('/v2/alchemy_api_key')
+    .reply(200, wrapJsonRpc({ result: '0x000000000000000000000000f638bf55b9b7b30a7f3286245e13f6198fcc9879' }))
+
+  const lens = nock('https://api.lens.dev:443')
+    .post('/', {
+      query: 'query { profiles(request: { ownedBy: ["0xF638Bf55B9B7B30A7f3286245E13f6198FCc9879"] }) { items { attributes { key value } } } }',
+      operationName: null,
+      variables: null
+    })
+    .reply(200, {
+      data: {
+        profiles: {
+          items: []
+        }
+      }
+    })
+
+  const result = await resolve('contenthash(bytes32)', node)
 
   t.notOk(result)
   t.ok(blockchain.isDone())
